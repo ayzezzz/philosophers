@@ -12,20 +12,20 @@
 
 #include "philo.h"
 
-static void	zzz_sleeping(t_philo *philo)
+static void zzz_sleeping(t_philo *philo)
 {
 	print_message(philo, philo->id, "is sleeping");
 	z_sleep(philo, philo->time_to_sleep);
-	return ;
+	return;
 }
 
-static void	thinking(t_philo *philo)
+static void thinking(t_philo *philo)
 {
 	print_message(philo, philo->id, "is thinking");
-	return ;
+	return;
 }
 
-static void	eating(t_philo *philo)
+static void eating(t_philo *philo)
 {
 	pthread_mutex_lock(philo->r_fork);
 	print_message(philo, philo->id, "has taken a fork");
@@ -33,22 +33,24 @@ static void	eating(t_philo *philo)
 	print_message(philo, philo->id, "has taken a fork");
 	philo->eating = 1;
 	print_message(philo, philo->id, "is eating");
-	pthread_mutex_lock(&philo->eat_lock);
+	pthread_mutex_lock(&philo->data->eat_lock);
 	philo->last_time = time_now();
 	philo->eaten_count++;
-	pthread_mutex_unlock(&philo->eat_lock);
+	pthread_mutex_unlock(&philo->data->eat_lock);
 	z_sleep(philo, philo->time_to_eat);
+	pthread_mutex_lock(&philo->data->eat_lock);
 	philo->eating = 0;
+	pthread_mutex_unlock(&philo->data->eat_lock);
 	pthread_mutex_unlock(philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);
 }
 
-static void	*routine(void *arg)
+static void *routine(void *arg)
 {
-	t_philo	*philo;
+	t_philo *philo;
 
 	philo = (t_philo *)arg;
-	if (philo[0].philo_num == 1)
+	if (philo[0].data->philo_num == 1)
 	{
 		pthread_mutex_lock(philo->r_fork);
 		print_message(philo, philo->id, "has taken a fork");
@@ -68,27 +70,24 @@ static void	*routine(void *arg)
 	return (arg);
 }
 
-int	thread_create(t_philo *philo)
+int thread_create(t_philo *philo)
 {
-	int			i;
-	pthread_t	zthread;
+	int i;
 
 	i = 0;
-	if (pthread_create(&zthread, NULL, &check_thread, philo) != 0)
-		return (-1);
-	while (i < philo[0].philo_num)
+	while (i < philo[0].data->philo_num)
 	{
 		if (pthread_create(&philo[i].thread, NULL, &routine, &philo[i]) != 0)
 			return (-1);
 		i++;
 	}
+	check_thread(philo);
 	i = 0;
-	if (pthread_join(zthread, NULL) != 0)
-		return (-1);
-	while (i < philo[0].philo_num)
+	while (i < philo->data->philo_num)
 	{
-		if (pthread_detach(philo[i].thread) != 0)
+		if (pthread_join(philo[i].thread, NULL) != 0)
 			return (-1);
+		i++;
 	}
 	return (1);
 }
