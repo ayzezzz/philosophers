@@ -12,18 +12,18 @@
 
 #include "philo.h"
 
-int	main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-	t_program		*program;
-	pthread_mutex_t	forks[PHILO_MAX];
-	t_philo			philo[PHILO_MAX];
+	t_program *program;
+	pthread_mutex_t forks[PHILO_MAX];
+	t_philo philo[PHILO_MAX];
 
 	if (!(argc == 5 || argc == 6))
 		return (ft_error("Unvalid argc"));
 	if (!check_argv(argv))
 		return (ft_error("Unvalid arg"));
 	program = malloc(sizeof(t_program));
-	init_program(program, philo);
+	init_program(program, philo, argv);
 	init_forks(forks, ft_zatoi(argv[1]));
 	program->philo = malloc(sizeof(t_philo) * (ft_zatoi(argv[1])));
 	init_philo(program->philo, program, forks, argv);

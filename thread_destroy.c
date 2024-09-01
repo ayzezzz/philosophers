@@ -18,7 +18,7 @@ void	destroy_program(t_program *program, t_philo *philo,
 	int	i;
 
 	i = 0;
-	while (i < philo->philo_num)
+	while (i < philo[0].data->philo_num)
 	{
 		pthread_mutex_destroy(&forks[i]);
 		i++;
@@ -26,6 +26,8 @@ void	destroy_program(t_program *program, t_philo *philo,
 	pthread_mutex_destroy(&program->dead_lock);
 	pthread_mutex_destroy(&program->write_lock);
 	pthread_mutex_destroy(&program->eat_lock);
+	pthread_mutex_destroy(&program->need_lock);
+	pthread_mutex_destroy(&program->check_lock);
 	free(philo);
 	free(program);
 }

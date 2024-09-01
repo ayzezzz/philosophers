@@ -39,6 +39,7 @@ void	z_sleep(t_philo *philo, size_t time)
 	size_t	start_time;
 
 	start_time = time_now();
+	(void)*philo;
 	while (time_now() - start_time < time)
 	{
 		if (!dieorlife(philo))
@@ -61,21 +62,25 @@ void	print_message(t_philo *philo, int id, char *state)
 	size_t		time;
 	static int	i = 0;
 
-	pthread_mutex_lock(&philo->write_lock);
+	pthread_mutex_lock(&philo->data->need_lock);
+	if (philo->data->philo[0].eat_done == 1)
+	{
+		pthread_mutex_unlock(&philo->data->need_lock);
+		return ;
+	}
+	pthread_mutex_unlock(&philo->data->need_lock);
+	pthread_mutex_lock(&philo->data->write_lock);
 	time = (time_now() - philo->start_time);
 	if (dieorlife(philo))
-		printf("%zu %d %s\n", time, id, state);
-	else if (philo[0].eat_done == 1)
 	{
-		pthread_mutex_unlock(&philo->write_lock);
+		printf("%zu %d %s\n", time, id, state);
+		pthread_mutex_unlock(&philo->data->write_lock);
 		return ;
 	}
 	else if (!i)
 	{
 		printf("%zu %d %s\n", time, id, state);
 		i = 1;
-		pthread_mutex_unlock(&philo->write_lock);
-		return ;
 	}
-	pthread_mutex_unlock(&philo->write_lock);
+	pthread_mutex_unlock(&philo->data->write_lock);
 }

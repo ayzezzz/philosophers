@@ -16,8 +16,8 @@ RM= rm -rf
 
 all: $(NAME)
 
-$(NAME) : $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+$(NAME) : $(SRCS)
+	$(CC) $(CFLAGS) $(SRCS) -o $(NAME)
 
 clean: 
 	$(RM) $(OBJS)
